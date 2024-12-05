@@ -1,11 +1,8 @@
 import 'package:difwa/config/app_color.dart';
 import 'package:difwa/config/app_styles.dart';
-import 'package:difwa/screens/admin_screens/add_water.dart';
-import 'package:difwa/screens/admin_screens/add_item.dart';
+import 'package:difwa/screens/admin_screens/store_home.dart';
+import 'package:difwa/screens/admin_screens/admin_orders_page.dart';
 import 'package:difwa/screens/admin_screens/store_items.dart';
-// import 'package:difwa/screens/stores_screens/admin_order.dart';
-// import 'package:difwa/screens/stores_screens/admin_stats_dashboard.dart';
-// import 'package:difwa/screens/stores_screens/product_screen.dart';
 import 'package:flutter/material.dart';
 
 class BottomStoreHomePage extends StatefulWidget {
@@ -19,9 +16,9 @@ class _HomeScreenState extends State<BottomStoreHomePage> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    const AddWater(),
-    const AddItem(),
+    const StoreHome(),
     const StoreItems(),
+    const AdminPanelScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -57,7 +54,7 @@ class _HomeScreenState extends State<BottomStoreHomePage> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.shopping_bag, size: 30),
-                label: 'Order',
+                label: 'Orders',
               ),
             ],
             currentIndex: _selectedIndex,

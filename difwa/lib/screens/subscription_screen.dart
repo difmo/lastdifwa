@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:difwa/screens/checkout_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -20,6 +21,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   late Map<String, dynamic> orderData;
   late double totalPrice;
+  late double overAllTotalo;
   late int totalDays;
   late double bottlePrice;
 
@@ -28,10 +30,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     super.initState();
     orderData = Get.arguments ?? {};
     bottlePrice = orderData['price'];
-    totalPrice = bottlePrice * orderData['quantity'] +
-        (orderData['hasEmptyBottle']
-            ? orderData['vacantPrice'] * orderData['quantity']
-            : 0);
+
+    totalPrice = bottlePrice * orderData['quantity'];
+    print(totalPrice);
+
+    // if (orderData['hasEmptyBottle']) {
+    //   totalPrice += orderData['vacantPrice'] * orderData['quantity'];
+    // }
     startDate = DateTime.now().add(const Duration(days: 1));
     totalDays = getTotalDays();
   }
@@ -154,10 +159,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
 
     totalDays = getTotalDays();
-    totalPrice = bottlePrice * orderData['quantity'] +
-        (orderData['hasEmptyBottle']
-            ? orderData['vacantPrice'] * orderData['quantity']
-            : 0);
+
+    // Do not re-add the vacant bottle charge here
+    totalPrice = bottlePrice * orderData['quantity'];
+    if (orderData['hasEmptyBottle']) {
+      totalPrice += orderData['vacantPrice'] * orderData['quantity'];
+    }
   }
 
   List<DateTime> getDatesBasedOnFrequency() {
@@ -196,179 +203,195 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       appBar: AppBar(
         title: const Text('Subscribe'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Image.asset(
-                      'assets/images/water.jpg',
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${orderData['bottle']['size']}L',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Price: ₹ $bottlePrice per bottle',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.grey[600]),
-                          ),
-                          const SizedBox(height: 8),
-                          Text('Total: ₹ $totalPrice'),
-                        ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        'assets/images/water.jpg',
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${orderData['bottle']['size']}L',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Price: ₹ $bottlePrice per bottle',
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey[600]),
+                            ),
+                            const SizedBox(height: 8),
+                            Text('One Bottle Price: ₹ $totalPrice'),
+                            Text(
+                                'Vacant Bottle Price: ₹ ${orderData['vacantPrice'] * orderData['quantity']}'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Package Duration:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: const Text('1 Month'),
+                    selected: selectedPackageIndex == 0,
+                    onSelected: (bool selected) {
+                      setState(() {
+                        selectedPackageIndex = 0;
+                        endDate = startDate?.add(const Duration(days: 30));
+                      });
+                      _generateDates();
+                    },
+                  ),
+                  ChoiceChip(
+                    label: const Text('3 Months'),
+                    selected: selectedPackageIndex == 1,
+                    onSelected: (bool selected) {
+                      setState(() {
+                        selectedPackageIndex = 1;
+                        endDate = startDate?.add(const Duration(days: 90));
+                      });
+                      _generateDates();
+                    },
+                  ),
+                  ChoiceChip(
+                    label: const Text('6 Months'),
+                    selected: selectedPackageIndex == 2,
+                    onSelected: (bool selected) {
+                      setState(() {
+                        selectedPackageIndex = 2;
+                        endDate = startDate?.add(const Duration(days: 180));
+                      });
+                      _generateDates();
+                    },
+                  ),
+                  ChoiceChip(
+                    label: const Text('1 Year'),
+                    selected: selectedPackageIndex == 3,
+                    onSelected: (bool selected) {
+                      setState(() {
+                        selectedPackageIndex = 3;
+                        endDate = startDate?.add(const Duration(days: 365));
+                      });
+                      _generateDates();
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  _selectCustomDateRange(context);
+                },
+                child: const Text('Select Date Range'),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Frequency:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: const Text('Every Day'),
+                    selected: selectedFrequencyIndex == 0,
+                    onSelected: (bool selected) {
+                      setState(() {
+                        selectedFrequencyIndex = 0;
+                        _generateDates();
+                      });
+                    },
+                  ),
+                  ChoiceChip(
+                    label: const Text('Alternate Days'),
+                    selected: selectedFrequencyIndex == 1,
+                    onSelected: (bool selected) {
+                      setState(() {
+                        selectedFrequencyIndex = 1;
+                        _generateDates(); // Recalculate dates
+                      });
+                    },
+                  ),
+                  ChoiceChip(
+                    label: const Text('Except Sundays'),
+                    selected: selectedFrequencyIndex == 2,
+                    onSelected: (bool selected) {
+                      setState(() {
+                        selectedFrequencyIndex = 2;
+                        _generateDates();
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  _selectCustomDatesDialog(context);
+                },
+                child: const Text('Select Custom Dates'),
+              ),
+              const SizedBox(height: 16),
+              Text('Total Days: ${getTotalDays()} days'),
+              Text('For One Day: ₹$totalPrice'),
+              const SizedBox(height: 16),
+              Text(
+                'Total Price: ₹ ${totalPrice * getTotalDays() + orderData['vacantPrice'] * orderData['quantity']} ',
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  // Navigate to Checkout Screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CheckoutScreen(
+                        orderData: orderData,
+                        totalPrice: totalPrice,
+                        totalDays: getTotalDays(),
+                        selectedDates: selectedDates,
                       ),
                     ),
-                  ],
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
                 ),
+                child: const Text('Go to Checkout'),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Package Duration:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ChoiceChip(
-                  label: const Text('1 Month'),
-                  selected: selectedPackageIndex == 0,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      selectedPackageIndex = 0;
-                      endDate = startDate?.add(const Duration(days: 30));
-                    });
-                    _generateDates();
-                  },
-                ),
-                ChoiceChip(
-                  label: const Text('3 Months'),
-                  selected: selectedPackageIndex == 1,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      selectedPackageIndex = 1;
-                      endDate = startDate?.add(const Duration(days: 90));
-                    });
-                    _generateDates();
-                  },
-                ),
-                ChoiceChip(
-                  label: const Text('6 Months'),
-                  selected: selectedPackageIndex == 2,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      selectedPackageIndex = 2;
-                      endDate = startDate?.add(const Duration(days: 180));
-                    });
-                    _generateDates();
-                  },
-                ),
-                ChoiceChip(
-                  label: const Text('1 Year'),
-                  selected: selectedPackageIndex == 3,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      selectedPackageIndex = 3;
-                      endDate = startDate?.add(const Duration(days: 365));
-                    });
-                    _generateDates();
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                _selectCustomDateRange(context);
-              },
-              child: const Text('Select Date Range'),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Frequency:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ChoiceChip(
-                  label: const Text('Every Day'),
-                  selected: selectedFrequencyIndex == 0,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      selectedFrequencyIndex = 0;
-                      _generateDates();
-                    });
-                  },
-                ),
-                ChoiceChip(
-                  label: const Text('Alternate Days'),
-                  selected: selectedFrequencyIndex == 1,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      selectedFrequencyIndex = 1;
-                      _generateDates(); // Recalculate dates
-                    });
-                  },
-                ),
-                ChoiceChip(
-                  label: const Text('Except Sundays'),
-                  selected: selectedFrequencyIndex == 2,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      selectedFrequencyIndex = 2;
-                      _generateDates();
-                    });
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                _selectCustomDatesDialog(context);
-              },
-              child: const Text('Select Custom Dates'),
-            ),
-            const SizedBox(height: 16),
-            Text('Total Days: ${getTotalDays()} days'),
-            Text('For One Day: ₹$totalPrice'),
-            const SizedBox(height: 16),
-            Text(
-              'Total Price: ₹ ${totalPrice * getTotalDays()} ',
-              style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                print("Proceeding to payment...");
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-              ),
-              child: const Text('Proceed to Payment'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

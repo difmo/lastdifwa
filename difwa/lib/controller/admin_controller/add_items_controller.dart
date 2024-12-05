@@ -5,20 +5,43 @@ class FirebaseController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Save bottle data to Firebase
-  Future<void> addBottleData(int size, double price, double vacantPrice) async {
+  Future<String?> fetchMerchantId(String userId) async {
     final userId = _auth.currentUser?.uid;
 
+    try {
+      DocumentSnapshot storeDoc =
+          await _firestore.collection('difwa-stores').doc(userId).get();
+
+      if (!storeDoc.exists) {
+        throw Exception("Store document does not exist for this user.");
+      }
+
+      return storeDoc['merchantId'];
+    } catch (e) {
+      throw Exception("Failed to fetch merchantId: $e");
+    }
+  }
+
+  Future<void> addBottleData(int size, double price, double vacantPrice) async {
+    final userId = _auth.currentUser?.uid;
+    String? merchantId = await fetchMerchantId(userId.toString());
+
+    final storeId = userId;
     if (userId == null) {
       throw Exception("User not logged in.");
     }
 
     try {
-      await _firestore.collection('bottleItems').add({
+      await _firestore
+          .collection('difwa-stores')
+          .doc(storeId)
+          .collection('difwa-items')
+          .add({
         'userId': userId,
         'size': size,
         'price': price,
         'vacantPrice': vacantPrice,
+        'merchantId': merchantId,
         'timestamp': FieldValue.serverTimestamp(),
       });
     } catch (e) {
@@ -26,17 +49,18 @@ class FirebaseController {
     }
   }
 
-  // Fetch all bottle data for the current user
   Stream<List<Map<String, dynamic>>> fetchBottleItems() {
     final userId = _auth.currentUser?.uid;
 
+    final storeId = userId;
     if (userId == null) {
       return const Stream.empty();
     }
 
     return _firestore
-        .collection('bottleItems')
-        .where('userId', isEqualTo: userId)
+        .collection('difwa-stores')
+        .doc(storeId)
+        .collection('difwa-items')
         .snapshots()
         .map((querySnapshot) {
       return querySnapshot.docs.map((doc) {
@@ -45,6 +69,7 @@ class FirebaseController {
           'size': doc['size'],
           'price': doc['price'],
           'vacantPrice': doc['vacantPrice'],
+          'merchantId': doc['merchantId'],
         };
       }).toList();
     });
@@ -53,21 +78,36 @@ class FirebaseController {
   // Update bottle data
   Future<void> updateBottleData(
       String docId, int size, double price, double vacantPrice) async {
+    final userId = _auth.currentUser?.uid;
+    final storeId = userId;
     try {
-      await _firestore.collection('bottleItems').doc(docId).update({
+      String? merchantId = await fetchMerchantId(userId.toString());
+      await _firestore
+          .collection('difwa-stores')
+          .doc(storeId)
+          .collection('difwa-items')
+          .doc(docId)
+          .update({
         'size': size,
         'price': price,
         'vacantPrice': vacantPrice,
+        'merchantId': merchantId,
       });
     } catch (e) {
       throw Exception("Failed to update bottle data: $e");
     }
   }
 
-  // Delete bottle data
   Future<void> deleteBottleData(String docId) async {
+    final userId = _auth.currentUser?.uid;
+    final storeId = userId;
     try {
-      await _firestore.collection('bottleItems').doc(docId).delete();
+      await _firestore
+          .collection('difwa-stores')
+          .doc(storeId)
+          .collection('difwa-items')
+          .doc(docId)
+          .delete();
     } catch (e) {
       throw Exception("Failed to delete bottle data: $e");
     }

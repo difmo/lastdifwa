@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _getUserRole(String userId) async {
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('difwausers')
+          .collection('difwa-users')
           .doc(userId)
           .get();
 

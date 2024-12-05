@@ -56,17 +56,19 @@ class AuthController extends GetxController {
     final user = _auth.currentUser;
     if (user != null) {
       DocumentSnapshot userDoc =
-          await _firestore.collection('difwausers').doc(user.uid).get();
+          await _firestore.collection('difwa-users').doc(user.uid).get();
       if (!userDoc.exists) {
-        await _firestore.collection('difwausers').doc(user.uid).set({
+        await _firestore.collection('difwa-users').doc(user.uid).set({
           'mobileNumber': user.phoneNumber,
           'uid': user.uid,
           'role': 'isUser',
           'name': name,
+          'walletBalance': 0.0, // Initialize walletBalance for new users
         }, SetOptions(merge: true));
       } else {
-        await _firestore.collection('difwausers').doc(user.uid).update({
+        await _firestore.collection('difwa-users').doc(user.uid).update({
           'name': name,
+          'walletBalance': 0.0, // Initialize walletBalance for new users
         });
       }
     }
@@ -76,7 +78,7 @@ class AuthController extends GetxController {
     final user = _auth.currentUser;
     if (user != null) {
       DocumentSnapshot userDoc =
-          await _firestore.collection('difwausers').doc(user.uid).get();
+          await _firestore.collection('difwa-users').doc(user.uid).get();
       if (userDoc.exists) {
         userRole.value = userDoc['role'] ?? 'isUser';
       } else {
@@ -88,7 +90,7 @@ class AuthController extends GetxController {
   void _handleAuthStateChanged(User? user) {
     if (user != null) {
       _firestore
-          .collection('difwausers')
+          .collection('difwa-users')
           .doc(user.uid)
           .snapshots()
           .listen((doc) {

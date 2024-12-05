@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:difwa/controller/admin_controller/add_items_controller.dart';
-import 'package:difwa/screens/admin_screens/add_item.dart';
 import 'package:flutter/material.dart';
 
 class StoreItems extends StatelessWidget {
@@ -117,17 +116,6 @@ class StoreItems extends StatelessWidget {
             },
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to the AddItem screen when the button is pressed
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddItem()),
-          );
-        },
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add),
       ),
     );
   }

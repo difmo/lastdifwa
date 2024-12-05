@@ -101,18 +101,18 @@ class SignupController extends GetxController {
 
   Future<void> _updateUserRole(String userId) async {
     DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('difwausers')
+        .collection('difwa-users')
         .doc(userId)
         .get();
 
     if (userDoc.exists) {
       await FirebaseFirestore.instance
-          .collection('difwausers')
+          .collection('difwa-users')
           .doc(userId)
           .update({'role': 'isStoreKeeper'});
     } else {
       await FirebaseFirestore.instance
-          .collection('difwausers')
+          .collection('difwa-users')
           .doc(userId)
           .set({
         'role': 'isStoreKeeper',
@@ -123,7 +123,7 @@ class SignupController extends GetxController {
 
   Future<void> _saveUserStore(UserModel newUser) async {
     await FirebaseFirestore.instance
-        .collection('difwastores')
+        .collection('difwa-stores')
         .doc(newUser.uid)
         .set(newUser.toMap());
   }
