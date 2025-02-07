@@ -46,7 +46,7 @@ class AppRoutes {
     ),
     GetPage(
       name: login,
-      page: () => const MobileNumberPage(),
+      page: () =>  MobileNumberPage(),
     ),
     GetPage(
       name: otp,

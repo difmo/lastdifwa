@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:difwa/config/app_color.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -32,9 +33,9 @@ class _HistoryScreenState extends State<HistoryScreen>
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.blue,
-          labelColor: Colors.blue,
-          unselectedLabelColor: Colors.grey,
+          indicatorColor: AppColors.primary,
+          labelColor: AppColors.primary,
+          unselectedLabelColor:Colors.grey,
           tabs: const [
             Tab(icon: Icon(Icons.info), text: 'Pending'),
             Tab(icon: Icon(Icons.check_box), text: 'Completed'),

@@ -23,13 +23,16 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   late double totalPrice;
   late double overAllTotalo;
   late int totalDays;
-  late double bottlePrice;
+  late double bottlePrice = 200.0;
 
   @override
   void initState() {
     super.initState();
     orderData = Get.arguments ?? {};
     bottlePrice = orderData['price'];
+    print("aaja");
+    print(orderData);
+    print(bottlePrice);
 
     totalPrice = bottlePrice * orderData['quantity'];
     print(totalPrice);

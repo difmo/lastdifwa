@@ -1,12 +1,25 @@
 import 'dart:ui';
 
+import 'package:difwa/routes/app_routes.dart';
 import 'package:difwa/screens/admin_screens/store_onboarding_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 import '../config/app_color.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<ProfileScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // final authController = Get.find<AuthController>(); // Example if using GetX
 
   @override
   Widget build(BuildContext context) {
@@ -29,14 +42,14 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               margin: const EdgeInsets.symmetric(horizontal: 16.0),
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: AppColors.secondary,
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: const Row(
                 children: [
                   CircleAvatar(
                     radius: 30,
-                    backgroundColor: Colors.blue,
+                    backgroundColor: AppColors.primary,
                     child: Icon(
                       Icons.person,
                       color: Colors.white,
@@ -103,9 +116,20 @@ class ProfileScreen extends StatelessWidget {
               icon: Icons.contact_mail,
               title: 'Contact Us',
             ),
-            const MenuOption(
-              icon: Icons.contact_mail,
-              title: 'Log Out',
+            GestureDetector(
+              onTap: () async {
+                try {
+                  await _auth.signOut();
+                  Get.snackbar('Success', 'Logged out successfully');
+                  Get.offAllNamed(AppRoutes.login);
+                } catch (e) {
+                  Get.snackbar('Error', 'Error logging out: $e');
+                }
+              },
+              child: const MenuOption(
+                icon: Icons.store,
+                title: 'Logout',
+              ),
             ),
             const MenuOption(
               icon: Icons.contact_mail,
@@ -134,19 +158,19 @@ class MenuOption extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: AppColors.secondary,
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 24, color: Colors.grey[700]),
+          Icon(icon, size: 24, color: AppColors.primary),
           const SizedBox(width: 16),
           Text(
             title,
             style: const TextStyle(fontSize: 16),
           ),
           const Spacer(),
-          const Icon(Icons.arrow_forward, size: 24, color: Colors.grey),
+          const Icon(Icons.arrow_forward, size: 24, color:AppColors.primary),
         ],
       ),
     );

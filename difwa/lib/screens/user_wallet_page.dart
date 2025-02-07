@@ -89,6 +89,8 @@ class _WalletScreenState extends State<WalletScreen> {
                   double walletBalance = userDoc['walletBalance'] ?? 0.0;
                   return Text(
                     '₹ ${walletBalance.toStringAsFixed(2)}',
+                    
+                      // "hgsjh",
                     style: const TextStyle(
                       color: Colors.blue,
                       fontWeight: FontWeight.bold,
